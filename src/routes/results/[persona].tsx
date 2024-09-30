@@ -1,27 +1,20 @@
-import { useNavigate, useParams } from "@solidjs/router";
+import { useNavigate } from "@solidjs/router";
+import ResultCard from "~/components/ResultCard";
 
 function Result() {
-  const params = useParams();
-  const persona = params.persona;  // URL에서 persona 값을 가져옵니다
   const navigate = useNavigate();
 
-  const resultMessage = () => {
-    switch (persona) {
-      case 'erpin':
-        return "You are like Erpin! Joyful and carefree!";
-      case 'velvet':
-        return "You are like Velvet! Bold and determined!";
-      // 더 많은 캐릭터 결과를 추가할 수 있습니다
-      default:
-        return "Unknown persona.";
-    }
-  };
-
   return (
-    <div class="container">
-      <h1>Your Result</h1>
-      <p>{resultMessage()}</p>
-      <button onClick={() => navigate('/')}>Go Back Home</button>
+    <div class="container mx-auto p-4">
+      <ResultCard />
+      <div class="text-center mt-6">
+        <button 
+          onClick={() => navigate('/')}
+          class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+        >
+          다시 하기
+        </button>
+      </div>
     </div>
   );
 }

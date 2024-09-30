@@ -1,28 +1,29 @@
 import { useParams } from "@solidjs/router";
-
-interface Persona {
-  name: string;
-  description: string;
-}
-
-const personas: Persona[] = [
-  { name: 'The Adventurer', description: 'You love exploring new things and taking risks.' },
-  // Add more personas here
-];
+import { personaResults } from "~/data/allResults";
 
 export default function ResultCard() {
   const params = useParams();
-  const personaName = params.persona;
+  const personaKey = params.persona;
 
-  const persona = personas.find(p => p.name === personaName);
+  const result = personaResults[personaKey];
+
+  if (!result) {
+    return <div>Unknown persona</div>;
+  }
 
   return (
-    <div class="container max-w-md mx-auto p-6 bg-white rounded-lg shadow-md">
-      <h1 class="text-3xl font-bold mb-4">{`You are like ${persona?.name}!`}</h1>
-      <p>
-        {persona?.description || 'Loading...'} 
-      </p>
+    <div class="container max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md">
+      <h1 class="text-4xl font-bold mb-4 text-center text-blue-600">{result.title}</h1>
+      <p class="mb-6 text-lg font-semibold">{result.summaryDescription}</p>
+      
+      <h2 class="text-2xl font-semibold mb-2 text-green-600">성격 설명</h2>
+      <p class="mb-4">{result.personalityDescription}</p>
+      
+      <h2 class="text-2xl font-semibold mb-2 text-purple-600">종족 설명</h2>
+      <p class="mb-4">{result.speciesDescription}</p>
+      
+      <h3 class="text-xl font-semibold mb-2 text-red-600">조언</h3>
+      <p>{result.advice}</p>
     </div>
   );
 }
-

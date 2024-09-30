@@ -9,7 +9,7 @@ export default function Header() {
         <nav>
           <ul class="flex space-x-4">
             <li>
-              <a href="/" class="hover:text-blue-500">Home</a>
+              <a href="/" class="hover:text-blue-500">홈</a>
             </li>
             {/* Add more navigation links here */}
           </ul>
