@@ -1,19 +1,19 @@
-# use the official Bun image
-# see all versions at https://hub.docker.com/r/oven/bun/tags
-FROM oven/bun:1.1-alpine AS base
+# Use official Node.js image with Alpine (lightweight)
+# See all available tags at https://hub.docker.com/_/node
+FROM node:18-alpine AS base
 WORKDIR /usr/src/app
 
-# install dependencies into temp directory
-# this will cache them and speed up future builds
+# Install pnpm globally
+RUN npm install -g pnpm
+
+# Install dependencies into temp directory to cache them and speed up future builds
 FROM base AS install
-
-# install with --production (exclude devDependencies)
 RUN mkdir -p /temp/prod
-COPY package.json bun.lockb /temp/prod/
-RUN cd /temp/prod && bun install --frozen-lockfile --production
+COPY package.json pnpm-lock.yaml /temp/prod/
+WORKDIR /temp/prod
+RUN pnpm install --frozen-lockfile --prod
 
-# copy node_modules from temp directory
-# then copy all (non-ignored) project files into the image
+# Copy node_modules from temp directory and then copy all project files into the image
 FROM base AS build
 WORKDIR /usr/src/app
 COPY --from=install /temp/prod/node_modules node_modules
@@ -21,21 +21,26 @@ COPY public public
 COPY src src
 COPY . .
 
-
-# [optional] tests & build
+# [optional] Build the project
 ENV NODE_ENV=production
-RUN bun run build
+RUN pnpm run build
 
-# copy production dependencies and source code into final image
+# Final stage: create a minimal image for production
 FROM base AS release
 WORKDIR /usr/src/app
+
+# Copy built output from the build stage
 COPY --from=build /usr/src/app/.output .output
 
+# Set environment variables
 ENV NODE_ENV=production
 ENV PORT=3000
 
-# run the app
-USER bun
+# Expose the port that the app runs on
 EXPOSE 3000/tcp
 
-ENTRYPOINT [ "bun", "run", ".output/server/index.mjs" ]
+# Use a non-root user for better security
+USER node
+
+# Start the app
+CMD ["node", ".output/server/index.mjs"]

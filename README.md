@@ -12,13 +12,14 @@ This codebase is started from [ts + unocss solidstart template](https://github.c
 
 ## develop
 
-- [Bun](https://bun.sh/)
+- ~~[Bun](https://bun.sh/)~~
+- node.js + pnpm
 
 ```bash
 git clone https://github.com/sftblw/trickcal-persona-test
 cd trickcal-persona-test
-bun install
-bun dev
+pnpm i
+pnpm dev
 ```
 
 ## CI/CD
