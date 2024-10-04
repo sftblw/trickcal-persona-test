@@ -1,4 +1,4 @@
-import { PersonaResult } from "../ResultType";
+import { PersonaResult } from "../../ResultType";
 
 export const gloomyResults: Record<string, PersonaResult> = {
     // 우울 (Gloomy)

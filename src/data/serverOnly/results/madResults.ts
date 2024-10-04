@@ -1,6 +1,6 @@
-import { PersonaResult } from "../ResultType";
+import { PersonaResult } from "../../ResultType";
 
- const madResults: Record<string, PersonaResult> = {
+const madResults: Record<string, PersonaResult> = {
     // 광기 (Mad)
     'mad-dragon': {
       title: "광기 + 용족",

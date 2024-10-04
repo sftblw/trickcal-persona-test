@@ -1,4 +1,4 @@
-import { PersonaResult } from "../ResultType";
+import { PersonaResult } from "../../ResultType";
 
 const naiveResults: Record<string, PersonaResult> = {
     // 순수 (Naive)

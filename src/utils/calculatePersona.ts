@@ -1,10 +1,10 @@
-import { QuestionData, AnswerData } from '~/data/QuestionDataType';
-import { allQuestionsMap } from '~/data/allQuestions';
+import { AnswerData } from '~/data/QuestionDataType';
+import { getAllQuestionScoreOnly } from '~/data/questionsApi';
 
 type PersonalityType = keyof AnswerData['personality_scores'];
 type RaceType = keyof AnswerData['race_scores'];
 
-export function calculatePersona(answers: Map<string, string>): { personality: PersonalityType, race: RaceType } {
+export async function calculatePersona(answers: Map<string, string>): Promise<{ personality: PersonalityType, race: RaceType }> {
   const personalityScores: Record<PersonalityType, number> = {
     mad: 0, cool: 0, naive: 0, jolly: 0, gloomy: 0
   };
@@ -12,23 +12,20 @@ export function calculatePersona(answers: Map<string, string>): { personality: P
     dragon: 0, fairy: 0, witch: 0, elf: 0, spirit: 0, ghost: 0, furry: 0
   };
 
+  const allQuestionScoreMap = await getAllQuestionScoreOnly();
 
   answers.forEach((answerId, questionId) => {
-    const question = allQuestionsMap[questionId];
-    if (question) {
-      const answerMap = question.answers.reduce((acc, answer) => {
-        acc[answer.id] = answer;
-        return acc;
-      }, {} as { [key: string]: AnswerData });
+    const questionScoreData = allQuestionScoreMap[questionId];
+    if (questionScoreData) {
       
-      const selectedAnswer = answerMap[answerId];
+      const selectedAnswer = questionScoreData.answers[answerId];
       if (selectedAnswer) {
 
-        if (question.type === 'personality') {
+        if (questionScoreData.type === 'personality') {
           Object.entries(selectedAnswer.personality_scores).forEach(([key, value]) => {
             personalityScores[key as PersonalityType] += value;
           });
-        } else if (question.type === 'race') {
+        } else if (questionScoreData.type === 'race') {
           Object.entries(selectedAnswer.race_scores).forEach(([key, value]) => {
             raceScores[key as RaceType] += value;
           });

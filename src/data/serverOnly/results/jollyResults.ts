@@ -1,4 +1,4 @@
-import { PersonaResult } from "../ResultType";
+import { PersonaResult } from "../../ResultType";
 
 const jollyResults: Record<string, PersonaResult> = {
     // 활발 (Jolly)

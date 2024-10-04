@@ -1,4 +1,4 @@
-import { QuestionData } from "./QuestionDataType";
+import { QuestionData } from "../QuestionDataType";
 
 export const personalityQuestions: QuestionData[] = [
   {

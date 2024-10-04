@@ -1,9 +1,10 @@
-import { useNavigate, useParams } from '@solidjs/router';
+import { createAsync, useNavigate, useParams } from '@solidjs/router';
 import { createEffect, createMemo, createSignal, Show } from 'solid-js';
 import QuestionCard from '~/components/QuestionCard';
-import { getQuestionById, getQuestionIdByIndex, questionIdToIndex, questionOrder } from '~/data/allQuestions';
+import { getQuestionIdByIndex, getQuestionById, getIndexByQuestionId, getQuestionLength } from '~/data/questionsApi';
 import { useQuiz } from '~/store/QuizContext';
 import { calculatePersona } from '~/utils/calculatePersona';
+import { navigateStartQuiz } from '~/utils/navPaths';
 
 function Questions() {
   const params = useParams();
@@ -11,64 +12,68 @@ function Questions() {
 
   const quizContext = useQuiz();
 
-  const [isAnswered, setIsAnswered] = createSignal(false);
-  const quizId = createMemo<string>((_: string) => {
-    let index = quizContext.currentQuestionIndex();
-    return getQuestionIdByIndex(index) ?? '';
-  }, '');
+  const curQuestionId = createMemo(() => params.id);
 
+  const curQuestionIndex = createAsync(() => getIndexByQuestionId(curQuestionId()), {initialValue: 0});
+  const curQuestion = createAsync(() => getQuestionById(curQuestionId()));
+  const allQuestionLength = createAsync(() => getQuestionLength(), {initialValue: 0}) ;
+
+  const progress = () => ((quizContext.currentQuestionIndex() + 1) / allQuestionLength()) * 100;
+
+  const [isAnswered, setIsAnswered] = createSignal(false);
 
   createEffect(() => {
-    const currentQuestion = getQuestionById(params.id);
-    if (currentQuestion) {
-      let index = questionIdToIndex[currentQuestion.id];
-      if (index !== quizContext.currentQuestionIndex()) {
+    if (curQuestion()) {
+
+      let index = curQuestionIndex();
+
+      if (index == null) {
+        // fire and forget
+        navigateStartQuiz(navigate);
+      }
+
+      else if (index !== quizContext.currentQuestionIndex()) {
         quizContext.setCurrentQuestionIndex(index);
         setIsAnswered(false);
       }
     }
   });
 
-  const handleNavigation = (direction: 'prev' | 'next') => {
+  const handleNavigation = async (direction: 'prev' | 'next') => {
     const newIndex = direction === 'next' ? quizContext.currentQuestionIndex() + 1 : quizContext.currentQuestionIndex() - 1;
-    const newQuestionId = getQuestionIdByIndex(newIndex);
+    const newQuestionId = await getQuestionIdByIndex(newIndex);
     if (newQuestionId) {
       navigate(`/questions/${newQuestionId}`);
       setIsAnswered(false);
     } else if (direction === 'next') {      
-      const { personality, race } = calculatePersona(quizContext.selectedAnswers());
+      const { personality, race } = await calculatePersona(quizContext.selectedAnswers());
       navigate(`/results/${personality}-${race}`);
     }
   };
 
-
   const handleAnswer = (answer: string) => {
-    const currentQuestion = getQuestionById(params.id);
-    if (currentQuestion) {
+    if (curQuestion()) {
       let curAnswers = quizContext.selectedAnswers();
-      curAnswers.set(quizId(), answer);
+      curAnswers.set(curQuestionId(), answer);
       quizContext.setSelectedAnswers(curAnswers);
       setIsAnswered(true);
     }
-  };
-
-  const currentQuestion = () => getQuestionById(params.id);
-  const progress = () => ((quizContext.currentQuestionIndex() + 1) / questionOrder.length) * 100;
+  };  
 
   return (
     <div class="container mx-auto p-4 max-w-2xl">
       <div class="mb-4 bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
         <div class="bg-blue-600 h-2.5 rounded-full" style={`width: ${progress()}%`}></div>
       </div>
-      <Show when={currentQuestion()}>
+      <Show when={curQuestion()}>
         <QuestionCard 
-          question={currentQuestion()!}
+          question={curQuestion()!}
           onAnswer={handleAnswer}
         />
       </Show>
       <div class="flex justify-between mt-6">
         <button 
-          onClick={() => handleNavigation('prev')}
+          onClick={async () => handleNavigation('prev')}
           disabled={quizContext.currentQuestionIndex() === 0}
           class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-l disabled:opacity-50"
         >
@@ -79,7 +84,7 @@ function Questions() {
             onClick={() => handleNavigation('next')}
             class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-r"
           >
-            {quizContext.currentQuestionIndex() === questionOrder.length - 1 ? '결과 보기' : '다음'}
+            {quizContext.currentQuestionIndex() === allQuestionLength() - 1 ? '결과 보기' : '다음'}
           </button>
         </Show>
       </div>
