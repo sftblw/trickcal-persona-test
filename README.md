@@ -1,32 +1,22 @@
-# SolidStart
+# Trickcal Persona Test
 
-Everything you need to build a Solid project, powered by [`solid-start`](https://start.solidjs.com);
+This codebase is for-fun personality test, based on mobile game [Trickcal RE:VIVE](https://www.trickcal.com/).
 
-## Creating a project
+mainly done in [SolidStart](https://start.solidjs.com/).
 
-```bash
-# create a new project in the current directory
-npm init solid@latest
+## LICENSE
 
-# create a new project in my-app
-npm init solid@latest my-app
-```
+See [LICENSE.md](./LICENSE.md). This codbase is licensed under specific restrictive license, similar to [Pizzacus/satania.moesatania.moe](https://github.com/Pizzacus/satania.moe). not OSI compatible, very restrictive license.
 
-## Developing
+This codebase is started from [ts + unocss solidstart template](https://github.com/solidjs/solid-start/tree/v1.0.0/examples/with-unocss) which is under MIT license.
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+## develop
+
+- [Bun](https://bun.sh/)
 
 ```bash
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
+git clone https://github.com/sftblw/trickcal-persona-test
+cd trickcal-persona-test
+bun install
+bun dev
 ```
-
-## Building
-
-Solid apps are built with _presets_, which optimise your project for deployment to different environments.
-
-By default, `npm run build` will generate a Node app that you can run with `npm start`. To use a different preset, add it to the `devDependencies` in `package.json` and specify in your `app.config.js`.
-
-## This project was created with the [Solid CLI](https://solid-cli.netlify.app)

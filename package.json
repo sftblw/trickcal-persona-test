@@ -2,10 +2,11 @@
   "name": "example-with-unocss",
   "type": "module",
   "scripts": {
-    "dev": "vinxi dev",
-    "build": "vinxi build",
-    "start": "vinxi start"
+    "dev": "vinxi dev --preset bun",
+    "build": "vinxi build --preset bun",
+    "start": "vinxi start --preset bun"
   },
+  "license": "see LICENSE.md",
   "dependencies": {
     "@solid-primitives/cookies": "^0.0.1",
     "@solidjs/router": "^0.14.1",
@@ -15,8 +16,5 @@
     "solid-js": "^1.8.18",
     "unocss": "^0.59.2",
     "vinxi": "^0.4.1"
-  },
-  "engines": {
-    "node": ">=18"
   }
 }
