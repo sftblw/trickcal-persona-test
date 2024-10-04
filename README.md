@@ -6,7 +6,7 @@ mainly done in [SolidStart](https://start.solidjs.com/).
 
 ## LICENSE
 
-See [LICENSE.md](./LICENSE.md). This codbase is licensed under specific restrictive license, similar to [Pizzacus/satania.moesatania.moe](https://github.com/Pizzacus/satania.moe). not OSI compatible, very restrictive license.
+See [LICENSE.md](./LICENSE.md). This codbase is licensed under specific restrictive license, similar to [Pizzacus/satania.moe](https://github.com/Pizzacus/satania.moe). not OSI compatible, very restrictive license.
 
 This codebase is started from [ts + unocss solidstart template](https://github.com/solidjs/solid-start/tree/v1.0.0/examples/with-unocss) which is under MIT license.
 
