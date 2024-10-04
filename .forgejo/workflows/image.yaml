@@ -1,0 +1,87 @@
+name: Build and Push Multi-Platform Image
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  # https://velog.io/@rlwjd31/javascript-heap-out-of-memory-error
+  NODE_OPTIONS: "--max_old_space_size=4096"
+
+jobs:
+  build-image:
+    strategy:
+      matrix:
+        include:
+          - runner_label: x64
+            platform: linux/amd64
+            suffix: amd64
+          - runner_label: arm64
+            platform: linux/arm64
+            suffix: arm64
+    runs-on: ${{ matrix.runner_label }}
+    container:
+      image: alpinelinux/docker-cli
+    outputs:
+      tag: ${{ steps.get_tag.outputs.tag }}
+    steps:
+      - name: add deps
+        run: apk add git nodejs libcurl openssl
+
+      - name: setup node
+        uses: actions/setup-node@v4
+      
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-tags: true
+          fetch-depth: 0
+
+      - name: Get git tag or commit hash
+        id: get_tag
+        run: |
+          TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+          SHA_SHORT=$(git rev-parse --short HEAD)
+          DATE=$(date +%Y%m%d-%H%M)
+          FULL_TAG="${TAG}-${DATE}-${SHA_SHORT}"
+          echo "::set-output name=tag::${FULL_TAG}"
+
+      - name: Login to Docker Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ vars.DOCKER_REGISTRY }}
+          username: ${{ vars.DOCKER_REGISTRY_USER }}
+          password: ${{ secrets.DOCKER_REGISTRY_PASS }}
+
+      - name: Build and push final image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ vars.DOCKER_REGISTRY }}/${{ vars.IMAGE_NAME }}:${{ steps.get_tag.outputs.tag }}-${{ matrix.suffix }}
+          platforms: ${{ matrix.platform }}
+          file: Dockerfile
+
+  create-manifest:
+    needs: build-image
+    runs-on: arm64
+    container:
+      image: alpinelinux/docker-cli
+    steps:
+      - name: add deps
+        run: apk add git nodejs libcurl openssl
+
+      - name: Login to Docker Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ vars.DOCKER_REGISTRY }}
+          username: ${{ vars.DOCKER_REGISTRY_USER }}
+          password: ${{ secrets.DOCKER_REGISTRY_PASS }}
+
+      - name: Create and push manifest
+        run: |
+          docker manifest create ${{ vars.DOCKER_REGISTRY }}/${{ vars.IMAGE_NAME }}:${{ needs.build-image.outputs.tag }} \
+            --amend ${{ vars.DOCKER_REGISTRY }}/${{ vars.IMAGE_NAME }}:${{ needs.build-image.outputs.tag }}-amd64 \
+            --amend ${{ vars.DOCKER_REGISTRY }}/${{ vars.IMAGE_NAME }}:${{ needs.build-image.outputs.tag }}-arm64
+          docker manifest push ${{ vars.DOCKER_REGISTRY }}/${{ vars.IMAGE_NAME }}:${{ needs.build-image.outputs.tag }}
