@@ -14,9 +14,18 @@ function Questions() {
 
   const curQuestionId = createMemo(() => params.id);
 
-  const curQuestionIndex = createAsync(() => getIndexByQuestionId(curQuestionId()), {initialValue: 0});
+  const curQuestionIndexOrUndefined = createAsync(() => getIndexByQuestionId(curQuestionId()), {initialValue: 0});
   const curQuestion = createAsync(() => getQuestionById(curQuestionId()));
   const allQuestionLength = createAsync(() => getQuestionLength(), {initialValue: 0}) ;
+
+  const curQuestionIndex = createMemo(() => {
+    const curIndex = curQuestionIndexOrUndefined();
+    if (curIndex == undefined) {
+      navigate("/");
+    } else {
+      return curIndex;
+    }
+  })
 
   const progress = () => ((quizContext.currentQuestionIndex() + 1) / allQuestionLength()) * 100;
 
