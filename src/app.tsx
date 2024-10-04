@@ -3,7 +3,7 @@ import "virtual:uno.css";
 
 import { Router } from "@solidjs/router";
 import { FileRoutes } from "@solidjs/start/router";
-import { Suspense } from "solid-js";
+import { ErrorBoundary, Suspense } from "solid-js";
 import Header from "~/components/Header";
 import Footer from "~/components/Footer";
 import { QuizProvider } from "./store/QuizContext";
@@ -18,7 +18,7 @@ export default function App() {
         <Router
           root={(props) => (
             <>
-              <Suspense>{props.children}</Suspense>
+              <Suspense><ErrorBoundary fallback={err => err}>{props.children}</ErrorBoundary></Suspense>
             </>
           )}
         >
