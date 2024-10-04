@@ -2,7 +2,7 @@
 
 export default function Header() {
   return (
-    <header class="bg-pastelgreen-200 text-pastelgreen-900 p-4">
+    <header class="bg-pastelgreen-200 text-pastelgreen-900 p-4 font-katuri text-lg">
       <div class="container max-w-2xl mx-auto flex justify-between items-center">
         {/* <Logo /> */}
         {/* Assuming Logo is a component that renders your logo */}

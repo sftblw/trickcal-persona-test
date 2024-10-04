@@ -6,7 +6,7 @@ function Index() {
   const navigate = useNavigate();
   return (
     <div class="flex flex-col h-full gap-2 items-center">
-      <h1 class="text-3xl font-bold text-pastelgreen-900">재미로 하는 트릭컬 성격 알아보기</h1>
+      <h1 class="text-3xl font-bold text-pastelgreen-900 font-katuri">재미로 하는 트릭컬 성격 알아보기</h1>
       <p class="py-8">나와 맞는 트릭컬 성격을 알아보아요!</p>
       <button
         onClick={async () => { navigateStartQuiz(navigate); }}

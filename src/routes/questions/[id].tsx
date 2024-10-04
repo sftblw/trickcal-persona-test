@@ -29,7 +29,15 @@ function Questions() {
 
   const progress = () => ((quizContext.currentQuestionIndex() + 1) / allQuestionLength()) * 100;
 
-  const [isAnswered, setIsAnswered] = createSignal(false);
+  const [selectedAnswer, setSelectedAnswer] = createSignal('');
+
+  createEffect(() => {
+    let curAnswers = quizContext.selectedAnswers();
+    let curAnswer = curAnswers.get(curQuestionId());
+    if (curAnswer) { setSelectedAnswer(curAnswer); }
+  });
+
+  const isAnswered = createMemo(() => selectedAnswer() != '');
 
   createEffect(() => {
     if (curQuestion()) {
@@ -43,7 +51,7 @@ function Questions() {
 
       else if (index !== quizContext.currentQuestionIndex()) {
         quizContext.setCurrentQuestionIndex(index);
-        setIsAnswered(false);
+        // setSelectedAnswer('');
       }
     }
   });
@@ -53,7 +61,7 @@ function Questions() {
     const newQuestionId = await getQuestionIdByIndex(newIndex);
     if (newQuestionId) {
       navigate(`/questions/${newQuestionId}`);
-      setIsAnswered(false);
+      setSelectedAnswer('');
     } else if (direction === 'next') {      
       const { personality, race } = await calculatePersona(quizContext.selectedAnswers());
       navigate(`/results/${personality}-${race}`);
@@ -65,9 +73,9 @@ function Questions() {
       let curAnswers = quizContext.selectedAnswers();
       curAnswers.set(curQuestionId(), answer);
       quizContext.setSelectedAnswers(curAnswers);
-      setIsAnswered(true);
+      setSelectedAnswer(answer);
     }
-  };  
+  };
 
   return (
     <div class="container mx-auto p-4 max-w-2xl">
@@ -81,6 +89,8 @@ function Questions() {
       <Show when={curQuestion()}>
         <QuestionCard 
           question={curQuestion()!}
+          selectedAnswer={selectedAnswer}
+          setSelectedAnswer={setSelectedAnswer}
           onAnswer={handleAnswer}
         />
       </Show>
