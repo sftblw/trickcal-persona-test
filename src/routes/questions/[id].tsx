@@ -35,9 +35,7 @@ function Questions() {
     if (newQuestionId) {
       navigate(`/questions/${newQuestionId}`);
       setIsAnswered(false);
-    } else if (direction === 'next') {
-      const quizContext = useQuiz();
-      
+    } else if (direction === 'next') {      
       const { personality, race } = calculatePersona(quizContext.selectedAnswers());
       navigate(`/results/${personality}-${race}`);
     }
