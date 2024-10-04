@@ -71,8 +71,12 @@ function Questions() {
 
   return (
     <div class="container mx-auto p-4 max-w-2xl">
-      <div class="mb-4 bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
-        <div class="bg-blue-600 h-2.5 rounded-full" style={`width: ${progress()}%`}></div>
+      <div class="mb-4 bg-gray-200 rounded-full h-10 dark:bg-gray-700 relative">
+        <div class="bg-pastelgreen-600 p-2 h-10 rounded-full" style={`width: ${progress()}%`}>
+          <div class="text-white absolute w-full text-center font-black outlined-gray">
+            {quizContext.currentQuestionIndex() + 1} / { allQuestionLength() }
+          </div>
+        </div>
       </div>
       <Show when={curQuestion()}>
         <QuestionCard 
@@ -80,18 +84,18 @@ function Questions() {
           onAnswer={handleAnswer}
         />
       </Show>
-      <div class="flex justify-between mt-6">
+      <div class="mt-4 grid grid-cols-2 gap-2 justify-between">
         <button 
           onClick={async () => handleNavigation('prev')}
           disabled={quizContext.currentQuestionIndex() === 0}
-          class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-l disabled:opacity-50"
+          class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-4 px-8 rounded-xl disabled:opacity-50 grid-col-1"
         >
           이전
         </button>
-        <Show when={isAnswered()}>
+        <Show when={isAnswered()} fallback={<div class="py-4 px-8 "></div>}>
           <button 
             onClick={() => handleNavigation('next')}
-            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-r"
+            class="bg-pastelgreen-500 hover:bg-pastelgreen-700 text-white font-bold py-4 px-8 rounded-xl grid-col-2"
           >
             {quizContext.currentQuestionIndex() === allQuestionLength() - 1 ? '결과 보기' : '다음'}
           </button>

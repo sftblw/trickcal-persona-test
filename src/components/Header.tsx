@@ -2,14 +2,14 @@
 
 export default function Header() {
   return (
-    <header class="bg-gray-800 text-white p-4">
-      <div class="container mx-auto flex justify-between items-center">
+    <header class="bg-pastelgreen-200 text-pastelgreen-900 p-4">
+      <div class="container max-w-2xl mx-auto flex justify-between items-center">
         {/* <Logo /> */}
         {/* Assuming Logo is a component that renders your logo */}
         <nav>
           <ul class="flex space-x-4">
             <li>
-              <a href="/" class="hover:text-blue-500">홈</a>
+              <a href="/" class="hover:text-pastelgreen-500">홈</a>
             </li>
             {/* Add more navigation links here */}
           </ul>

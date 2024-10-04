@@ -13,7 +13,7 @@ export default function ResultCard() {
 
   return (
     <div class="container max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md">
-      <h1 class="text-4xl font-bold mb-4 text-center text-blue-600">{result()?.title}</h1>
+      <h1 class="text-4xl font-bold mb-4 text-center text-pastelgreen-600">{result()?.title}</h1>
       <p class="mb-6 text-lg font-semibold">{result()?.summaryDescription}</p>
       
       <h2 class="text-2xl font-semibold mb-2 text-green-600">성격 설명</h2>
