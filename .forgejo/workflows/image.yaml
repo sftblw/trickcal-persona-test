@@ -43,8 +43,7 @@ jobs:
         run: |
           TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
           SHA_SHORT=$(git rev-parse --short HEAD)
-          DATE=$(date +%Y%m%d-%H%M)
-          FULL_TAG="${TAG}-${DATE}-${SHA_SHORT}"
+          FULL_TAG="${TAG}-${SHA_SHORT}"
           echo "::set-output name=tag::${FULL_TAG}"
 
       - name: Login to Docker Registry
@@ -72,6 +71,23 @@ jobs:
       - name: add deps
         run: apk add git nodejs libcurl openssl
 
+      - name: setup node
+        uses: actions/setup-node@v4
+      
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-tags: true
+          fetch-depth: 0
+
+      - name: Get git tag or commit hash
+        id: get_tag
+        run: |
+          TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+          SHA_SHORT=$(git rev-parse --short HEAD)
+          FULL_TAG="${TAG}-${SHA_SHORT}"
+          echo "::set-output name=tag::${FULL_TAG}"
+
       - name: Login to Docker Registry
         uses: docker/login-action@v3
         with:
@@ -81,7 +97,7 @@ jobs:
 
       - name: Create and push manifest
         run: |
-          docker manifest create ${{ vars.DOCKER_REGISTRY }}/${{ vars.IMAGE_NAME }}:${{ needs.build-image.outputs.tag }} \
-            --amend ${{ vars.DOCKER_REGISTRY }}/${{ vars.IMAGE_NAME }}:${{ needs.build-image.outputs.tag }}-amd64 \
-            --amend ${{ vars.DOCKER_REGISTRY }}/${{ vars.IMAGE_NAME }}:${{ needs.build-image.outputs.tag }}-arm64
-          docker manifest push ${{ vars.DOCKER_REGISTRY }}/${{ vars.IMAGE_NAME }}:${{ needs.build-image.outputs.tag }}
+          docker manifest create ${{ vars.DOCKER_REGISTRY }}/${{ vars.IMAGE_NAME }}:${{ steps.get_tag.outputs.tag }} \
+            --amend ${{ vars.DOCKER_REGISTRY }}/${{ vars.IMAGE_NAME }}:${{ steps.get_tag.outputs.tag }}-amd64 \
+            --amend ${{ vars.DOCKER_REGISTRY }}/${{ vars.IMAGE_NAME }}:${{ steps.get_tag.outputs.tag }}-arm64
+          docker manifest push ${{ vars.DOCKER_REGISTRY }}/${{ vars.IMAGE_NAME }}:${{ steps.get_tag.outputs.tag }}
