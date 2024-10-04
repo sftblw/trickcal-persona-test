@@ -1,7 +1,7 @@
 import { useNavigate, useParams } from '@solidjs/router';
-import { createEffect, createSignal, Show } from 'solid-js';
+import { createEffect, createMemo, createSignal, Show } from 'solid-js';
 import QuestionCard from '~/components/QuestionCard';
-import { getQuestionById, getQuestionIdByIndex, questionIdToIndex } from '~/data/allQuestions';
+import { getQuestionById, getQuestionIdByIndex, questionIdToIndex, questionOrder } from '~/data/allQuestions';
 import { useQuiz } from '~/store/QuizContext';
 import { calculatePersona } from '~/utils/calculatePersona';
 
@@ -9,33 +9,36 @@ function Questions() {
   const params = useParams();
   const navigate = useNavigate();
 
-  const { 
-    currentQuestionIndex, 
-    setCurrentQuestionIndex, 
-  } = useQuiz();
+  const quizContext = useQuiz();
 
   const [isAnswered, setIsAnswered] = createSignal(false);
+  const quizId = createMemo<string>((_: string) => {
+    let index = quizContext.currentQuestionIndex();
+    return getQuestionIdByIndex(index) ?? '';
+  }, '');
+
 
   createEffect(() => {
     const currentQuestion = getQuestionById(params.id);
     if (currentQuestion) {
       let index = questionIdToIndex[currentQuestion.id];
-      if (index !== currentQuestionIndex()) {
-        setCurrentQuestionIndex(index);
+      if (index !== quizContext.currentQuestionIndex()) {
+        quizContext.setCurrentQuestionIndex(index);
         setIsAnswered(false);
       }
     }
   });
 
   const handleNavigation = (direction: 'prev' | 'next') => {
-    const newIndex = direction === 'next' ? currentQuestionIndex() + 1 : currentQuestionIndex() - 1;
+    const newIndex = direction === 'next' ? quizContext.currentQuestionIndex() + 1 : quizContext.currentQuestionIndex() - 1;
     const newQuestionId = getQuestionIdByIndex(newIndex);
     if (newQuestionId) {
       navigate(`/questions/${newQuestionId}`);
       setIsAnswered(false);
     } else if (direction === 'next') {
-      const { answers } = useQuiz();
-      const { personality, race } = calculatePersona(answers());
+      const quizContext = useQuiz();
+      
+      const { personality, race } = calculatePersona(quizContext.selectedAnswers());
       navigate(`/results/${personality}-${race}`);
     }
   };
@@ -44,13 +47,15 @@ function Questions() {
   const handleAnswer = (answer: string) => {
     const currentQuestion = getQuestionById(params.id);
     if (currentQuestion) {
-      setAnswers([...answers(), { questionId: currentQuestion.id, answer }]);
+      let curAnswers = quizContext.selectedAnswers();
+      curAnswers.set(quizId(), answer);
+      quizContext.setSelectedAnswers(curAnswers);
       setIsAnswered(true);
     }
   };
 
   const currentQuestion = () => getQuestionById(params.id);
-  const progress = () => ((currentQuestionIndex() + 1) / allQuestions.length) * 100;
+  const progress = () => ((quizContext.currentQuestionIndex() + 1) / questionOrder.length) * 100;
 
   return (
     <div class="container mx-auto p-4 max-w-2xl">
@@ -66,7 +71,7 @@ function Questions() {
       <div class="flex justify-between mt-6">
         <button 
           onClick={() => handleNavigation('prev')}
-          disabled={currentQuestionIndex() === 0}
+          disabled={quizContext.currentQuestionIndex() === 0}
           class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-l disabled:opacity-50"
         >
           이전
@@ -76,7 +81,7 @@ function Questions() {
             onClick={() => handleNavigation('next')}
             class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-r"
           >
-            {currentQuestionIndex() === questions().length - 1 ? '결과 보기' : '다음'}
+            {quizContext.currentQuestionIndex() === questionOrder.length - 1 ? '결과 보기' : '다음'}
           </button>
         </Show>
       </div>
