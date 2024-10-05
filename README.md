@@ -25,4 +25,5 @@ pnpm dev
 ## CI/CD
 
 This repo will be mirrored into personal forgejo instance; CI will run there.
-(TODO)
+
+https://code.sftblw.moe/sftblw/trickcal-persona-test/packages
