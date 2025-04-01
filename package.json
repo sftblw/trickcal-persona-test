@@ -4,7 +4,8 @@
   "scripts": {
     "dev": "vinxi dev",
     "build": "vinxi build",
-    "start": "vinxi start"
+    "start": "vinxi start",
+    "prisma": "prisma generate && prisma migrate deploy && prisma db seed"
   },
   "license": "see LICENSE.md",
   "dependencies": {
@@ -15,6 +16,10 @@
     "sass-embedded": "^1.79.4",
     "solid-js": "^1.9.1",
     "unocss": "^0.59.4",
-    "vinxi": "^0.4.3"
+    "vinxi": "^0.4.3",
+    "@prisma/client": "^4.5.0"
+  },
+  "devDependencies": {
+    "prisma": "^4.5.0"
   }
 }

@@ -1,0 +1,35 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Question {
+  id       String   @id @default(uuid())
+  type     String
+  question String
+  answers  Answer[]
+}
+
+model Answer {
+  id                String   @id @default(uuid())
+  answer            String
+  personalityScores String
+  raceScores        String
+  questionId        String
+  question          Question  @relation(fields: [questionId], references: [id])
+}
+
+model Result {
+  id                   String @id @default(uuid())
+  title                String
+  personality          String
+  race                 String
+  summaryDescription   String
+  personalityDescription String
+  speciesDescription   String
+  advice               String?
+}

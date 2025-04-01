@@ -7,6 +7,9 @@ import {
   createEffect,
 } from 'solid-js';
 import { createServerCookie } from '@solid-primitives/cookies';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
 
 interface QuizContextValue {
   currentQuestionIndex: Accessor<number>;
@@ -17,11 +20,19 @@ interface QuizContextValue {
 
 const QuizContext = createContext<QuizContextValue>();
 
-export function getInitialQuizState(cookieData?: { index: number; answers: [string, string][] }) {
-  return {
+export async function getInitialQuizState(cookieData?: { index: number; answers: [string, string][] }) {
+  const questions = await prisma.question.findMany({
+    include: {
+      answers: true
+    }
+  });
+
+  const initialState = {
     currentQuestionIndex: cookieData?.index || 0,
     selectedAnswers: cookieData?.answers ? new Map(cookieData.answers) : new Map(),
   };
+
+  return initialState;
 }
 
 export function QuizProvider(props: { children: any; initialState?: ReturnType<typeof getInitialQuizState> }) {
